@@ -107,7 +107,10 @@ public class CatalogActivity extends AppCompatActivity {
         mDb = mDbHelper.getReadableDatabase();
         String[] projection = {
                 PetContract.PetEntry._ID,
-                PetContract.PetEntry.PET_NAME};
+                PetContract.PetEntry.PET_NAME,
+                PetContract.PetEntry.PET_BREED,
+                PetContract.PetEntry.PET_GENDER,
+                PetContract.PetEntry.PET_WEIGHT};
 
         Cursor cursor = mDb.query(
                 PetContract.PetEntry.TABLE_NAME,
@@ -125,8 +128,16 @@ public class CatalogActivity extends AppCompatActivity {
             // Iterate through all the returned rows in the cursor
             while (cursor.moveToNext()) {
                 int nameIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
+                int breedIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_BREED);
+                int genderIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_GENDER);
+                int weightIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_WEIGHT);
+
                 String name = cursor.getString(nameIndex);
-                display.append("\n" + name);
+                String breed = cursor.getString(breedIndex);
+                String gender = String.valueOf(cursor.getInt(genderIndex));
+                String weight = String.valueOf(cursor.getInt(weightIndex));
+
+                display.append("\n" + name + " - " + breed + " - " + gender + " - " + weight);
             }
         } finally {
             cursor.close();

@@ -15,6 +15,9 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -26,22 +29,34 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetDBHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
  */
 public class EditorActivity extends AppCompatActivity {
 
-    /** EditText field to enter the pet's name */
+    /**
+     * EditText field to enter the pet's name
+     */
     private EditText mNameEditText;
 
-    /** EditText field to enter the pet's breed */
+    /**
+     * EditText field to enter the pet's breed
+     */
     private EditText mBreedEditText;
 
-    /** EditText field to enter the pet's weight */
+    /**
+     * EditText field to enter the pet's weight
+     */
     private EditText mWeightEditText;
 
-    /** EditText field to enter the pet's gender */
+    /**
+     * EditText field to enter the pet's gender
+     */
     private Spinner mGenderSpinner;
 
     /**
@@ -49,6 +64,8 @@ public class EditorActivity extends AppCompatActivity {
      * 0 for unknown gender, 1 for male, 2 for female.
      */
     private int mGender = 0;
+
+    private PetDBHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +79,8 @@ public class EditorActivity extends AppCompatActivity {
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
         setupSpinner();
+
+        mDbHelper = new PetDBHelper(this);
     }
 
     /**
@@ -118,6 +137,8 @@ public class EditorActivity extends AppCompatActivity {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Do nothing for now
+                addRealData();
+                //readFromDataBase();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -130,5 +151,22 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addRealData() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        String name = mNameEditText.getText().toString();
+        String breed = mBreedEditText.getText().toString();
+        String gender = String.valueOf(mGenderSpinner.getSelectedItem().toString());
+        int weight = Integer.parseInt(mWeightEditText.getText().toString());
+
+        values.put(PetContract.PetEntry.PET_NAME, name);
+        values.put(PetContract.PetEntry.PET_BREED, breed);
+        values.put(PetContract.PetEntry.PET_GENDER, gender);
+        values.put(PetContract.PetEntry.PET_WEIGHT, weight);
+
+        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
     }
 }
