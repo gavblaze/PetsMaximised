@@ -1,6 +1,7 @@
 package com.example.android.pets;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,11 +18,19 @@ import com.example.android.pets.data.PetContract;
 public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
     private Cursor mCursor;
     private Context mContext;
+    final private ItemClickListener mItemClickListener;
 
 
-    public PetAdapter(Context context, Cursor cursor) {
+    public PetAdapter(Context context, Cursor cursor, ItemClickListener itemClickListener) {
         this.mContext = context;
         this.mCursor = cursor;
+        this.mItemClickListener = itemClickListener;
+    }
+
+
+    public interface ItemClickListener {
+        void onItemClick(int position);
+
     }
 
     @Override
@@ -67,11 +76,12 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView mNameTextView;
         public TextView mBreedTextView;
 //        public TextView mGenderTextView;
 //        public TextView mWeightTextView;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -80,6 +90,16 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
             mBreedTextView = (TextView) itemView.findViewById(R.id.rv_breed_tv);
 //            mGenderTextView = (TextView) itemView.findViewById(R.id.rv_gender_tv);
 //            mWeightTextView = (TextView) itemView.findViewById(R.id.rv_weight_tv);
+
+            itemView.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            mItemClickListener.onItemClick(position);
+
         }
     }
 }

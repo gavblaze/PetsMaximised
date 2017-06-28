@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetDBHelper;
@@ -36,7 +37,7 @@ import com.example.android.pets.data.PetDBHelper;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements PetAdapter.ItemClickListener {
     private SQLiteDatabase mDb;
 
     private PetDBHelper mDbHelper;
@@ -44,6 +45,7 @@ public class CatalogActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private PetAdapter mAdapter;
+    private Cursor mCursor;
 
 
     @Override
@@ -68,8 +70,10 @@ public class CatalogActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new PetAdapter(this, readFromDataBase());
+        mAdapter = new PetAdapter(this, readFromDataBase(), this);
         mRecyclerView.setAdapter(mAdapter);
+
+        mCursor = readFromDataBase();
 
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -80,7 +84,7 @@ public class CatalogActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                long id  = (long) viewHolder.itemView.getTag();
+                long id = (long) viewHolder.itemView.getTag();
                 removeItem(id);
                 mAdapter.swapCursor(CatalogActivity.this, readFromDataBase());
             }
@@ -170,4 +174,21 @@ public class CatalogActivity extends AppCompatActivity {
         String selection = PetContract.PetEntry._ID + " = " + id;
         mDb.delete(PetContract.PetEntry.TABLE_NAME, selection, null);
     }
+
+    @Override
+    public void onItemClick(int position) {
+        Intent intent = new Intent(CatalogActivity.this, DetailActivity.class);
+        int nameIndex = mCursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
+
+        try {
+            mCursor.moveToPosition(position);
+            String name = mCursor.getString(nameIndex).toString();
+            intent.putExtra(Intent.EXTRA_TEXT, name);
+        } finally {
+
+            mCursor.close();
+        }
+        startActivity(intent);
+    }
+
 }
