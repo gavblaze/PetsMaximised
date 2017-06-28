@@ -22,6 +22,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +40,10 @@ public class CatalogActivity extends AppCompatActivity {
     private SQLiteDatabase mDb;
 
     private PetDBHelper mDbHelper;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private PetAdapter mAdapter;
 
 
     @Override
@@ -55,7 +62,16 @@ public class CatalogActivity extends AppCompatActivity {
         });
 
         mDbHelper = new PetDBHelper(this);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new PetAdapter(this, readFromDataBase());
+        mRecyclerView.setAdapter(mAdapter);
     }
+
 
     @Override
     protected void onStart() {
@@ -79,13 +95,13 @@ public class CatalogActivity extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 // Do nothing for now
                 addDummyData();
-                readFromDataBase();
+                mAdapter.swapCursor(this, readFromDataBase());
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 // Do nothing for now
-                delete();
-                readFromDataBase();
+                deleteAllPets();
+                mAdapter.swapCursor(this, readFromDataBase());
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -103,7 +119,7 @@ public class CatalogActivity extends AppCompatActivity {
         long newRowId = mDb.insert(PetContract.PetEntry.TABLE_NAME, null, values);
     }
 
-    private void readFromDataBase() {
+    private Cursor readFromDataBase() {
         mDb = mDbHelper.getReadableDatabase();
         String[] projection = {
                 PetContract.PetEntry._ID,
@@ -122,29 +138,14 @@ public class CatalogActivity extends AppCompatActivity {
                 null
         );
 
-        TextView display = (TextView) findViewById(R.id.text_view_pet);
-        try {
-            display.setText("Total values entered: " + cursor.getCount() + "\n");
-            // Iterate through all the returned rows in the cursor
-            while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
-                int breedIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_BREED);
-                int genderIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_GENDER);
-                int weightIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_WEIGHT);
+        TextView displayTextView = (TextView) findViewById(R.id.text_view_pet);
+        displayTextView.setText("Total pets in the database: " + cursor.getCount());
 
-                String name = cursor.getString(nameIndex);
-                String breed = cursor.getString(breedIndex);
-                String gender = String.valueOf(cursor.getInt(genderIndex));
-                String weight = String.valueOf(cursor.getInt(weightIndex));
 
-                display.append("\n" + name + " - " + breed + " - " + gender + " - " + weight);
-            }
-        } finally {
-            cursor.close();
-        }
+        return cursor;
     }
 
-    private void delete() {
+    private void deleteAllPets() {
         mDb.delete(PetContract.PetEntry.TABLE_NAME, null, null);
     }
 }

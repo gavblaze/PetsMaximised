@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetDBHelper;
@@ -138,6 +139,7 @@ public class EditorActivity extends AppCompatActivity {
             case R.id.action_save:
                 // Do nothing for now
                 addRealData();
+                Toast.makeText(this, "Pet saved", Toast.LENGTH_SHORT).show();
                 //readFromDataBase();
                 return true;
             // Respond to a click on the "Delete" menu option
