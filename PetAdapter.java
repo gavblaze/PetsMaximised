@@ -48,6 +48,10 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
 //            holder.mGenderTextView.setText(String.valueOf(mCursor.getInt(genderIndex)));
 //            holder.mGenderTextView.setText(String.valueOf(mCursor.getInt(weightIndex)));
 
+        int idIndex = mCursor.getColumnIndex(PetContract.PetEntry._ID);
+        long id = mCursor.getLong(idIndex);
+        holder.itemView.setTag(id);
+
     }
 
     @Override

@@ -70,6 +70,23 @@ public class CatalogActivity extends AppCompatActivity {
 
         mAdapter = new PetAdapter(this, readFromDataBase());
         mRecyclerView.setAdapter(mAdapter);
+
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                long id  = (long) viewHolder.itemView.getTag();
+                removeItem(id);
+                mAdapter.swapCursor(CatalogActivity.this, readFromDataBase());
+            }
+        });
+
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
 
@@ -147,5 +164,10 @@ public class CatalogActivity extends AppCompatActivity {
 
     private void deleteAllPets() {
         mDb.delete(PetContract.PetEntry.TABLE_NAME, null, null);
+    }
+
+    private void removeItem(long id) {
+        String selection = PetContract.PetEntry._ID + " = " + id;
+        mDb.delete(PetContract.PetEntry.TABLE_NAME, selection, null);
     }
 }
