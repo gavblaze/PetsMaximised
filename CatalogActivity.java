@@ -36,7 +36,8 @@ import com.example.android.pets.data.PetDBHelper;
 public class CatalogActivity extends AppCompatActivity {
     private SQLiteDatabase mDb;
 
-    PetDBHelper mDbHelper;
+    private PetDBHelper mDbHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +55,12 @@ public class CatalogActivity extends AppCompatActivity {
         });
 
         mDbHelper = new PetDBHelper(this);
+    }
 
-        mDb = mDbHelper.getWritableDatabase();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        readFromDataBase();
     }
 
     @Override
@@ -120,7 +125,7 @@ public class CatalogActivity extends AppCompatActivity {
             display.setText("Total values entered: " + cursor.getCount() + "\n");
             // Iterate through all the returned rows in the cursor
             while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
+                int nameIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_BREED);
                 String name = cursor.getString(nameIndex);
                 display.append("\n" + name);
             }
