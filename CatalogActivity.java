@@ -80,12 +80,12 @@ public class CatalogActivity extends AppCompatActivity {
                 // Do nothing for now
                 addDummyData();
                 readFromDataBase();
-
-
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 // Do nothing for now
+                delete();
+                readFromDataBase();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -119,18 +119,21 @@ public class CatalogActivity extends AppCompatActivity {
                 null
         );
 
-
         TextView display = (TextView) findViewById(R.id.text_view_pet);
         try {
             display.setText("Total values entered: " + cursor.getCount() + "\n");
             // Iterate through all the returned rows in the cursor
             while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_BREED);
+                int nameIndex = cursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
                 String name = cursor.getString(nameIndex);
                 display.append("\n" + name);
             }
         } finally {
             cursor.close();
         }
+    }
+
+    private void delete() {
+        mDb.delete(PetContract.PetEntry.TABLE_NAME, null, null);
     }
 }
