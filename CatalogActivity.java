@@ -47,6 +47,8 @@ public class CatalogActivity extends AppCompatActivity implements PetAdapter.Ite
     private PetAdapter mAdapter;
     private Cursor mCursor;
 
+    private Toast mToast;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +118,10 @@ public class CatalogActivity extends AppCompatActivity implements PetAdapter.Ite
             case R.id.action_insert_dummy_data:
                 // Do nothing for now
                 addDummyData();
-                mAdapter.swapCursor(this, readFromDataBase());
+                mAdapter.swapCursor(CatalogActivity.this, readFromDataBase());
+                /*We need to assign read from database to mCursor when an item is clicked
+                * So that when we add an item our onClick() method is not still using the old version of data*/
+                mCursor = readFromDataBase();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -132,8 +137,8 @@ public class CatalogActivity extends AppCompatActivity implements PetAdapter.Ite
     private void addDummyData() {
         mDb = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(PetContract.PetEntry.PET_NAME, "Bear");
-        values.put(PetContract.PetEntry.PET_BREED, "Great Dane");
+        values.put(PetContract.PetEntry.PET_NAME, "Buster");
+        values.put(PetContract.PetEntry.PET_BREED, "Doberman Pinscher");
         values.put(PetContract.PetEntry.PET_GENDER, 1);
         values.put(PetContract.PetEntry.PET_WEIGHT, 15);
 
@@ -177,18 +182,21 @@ public class CatalogActivity extends AppCompatActivity implements PetAdapter.Ite
 
     @Override
     public void onItemClick(int position) {
+
         Intent intent = new Intent(CatalogActivity.this, DetailActivity.class);
-        int nameIndex = mCursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
 
         try {
-            mCursor.moveToPosition(position);
-            String name = mCursor.getString(nameIndex).toString();
-            intent.putExtra(Intent.EXTRA_TEXT, name);
+
+        mCursor.moveToPosition(position);
+        int nameIndex = mCursor.getColumnIndex(PetContract.PetEntry.PET_NAME);
+        String name = mCursor.getString(nameIndex).toString();
+        intent.putExtra(Intent.EXTRA_TEXT, name);
+        startActivity(intent);
+
         } finally {
 
-            mCursor.close();
-        }
-        startActivity(intent);
-    }
+        mCursor.close();
 
+        }
+    }
 }
