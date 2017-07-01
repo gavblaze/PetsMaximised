@@ -139,7 +139,7 @@ public class EditorActivity extends AppCompatActivity {
             case R.id.action_save:
                 // Do nothing for now
                 addRealData();
-                Toast.makeText(this, "Pet saved", Toast.LENGTH_SHORT).show();
+                NavUtils.navigateUpFromSameTask(this);
                 //readFromDataBase();
                 return true;
             // Respond to a click on the "Delete" menu option
@@ -170,5 +170,11 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetContract.PetEntry.PET_WEIGHT, weight);
 
         long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
+
+        if (newRowId == -1) {
+            Toast.makeText(this, "Errror saving pet", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Pet saved with id: " + newRowId, Toast.LENGTH_SHORT).show();
+        }
     }
 }

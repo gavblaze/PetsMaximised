@@ -47,7 +47,6 @@ public class CatalogActivity extends AppCompatActivity implements PetAdapter.Ite
     private PetAdapter mAdapter;
     private Cursor mCursor;
 
-    private Toast mToast;
 
 
     @Override
